@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: simple-web-app
+    runtime: node
+    buildCommand: npm ci && npm run build && npm run db:generate && npm run db:migrate
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        value: /var/data/db.sqlite
+      - key: FILE_STORAGE_PATH
+        value: /var/data/uploads
+    disk:
+      name: data
+      mountPath: /var/data
+      sizeGB: 1
