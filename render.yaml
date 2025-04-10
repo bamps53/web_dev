@@ -2,7 +2,7 @@ services:
   - type: web
     name: simple-web-app
     runtime: node
-    buildCommand: npm ci && npm run build && npm run db:generate && npm run db:migrate
+    buildCommand: npm install && npm run build && npm run db:generate && npm run db:migrate
     startCommand: npm start
     envVars:
       - key: NODE_ENV

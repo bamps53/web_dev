@@ -16,21 +16,21 @@ export const action: ActionFunction = async ({ request }) => {
   try {
     const formData = await parseFormData(request);
     const fileUpload = formData.get("file");
-    
+
     if (!fileUpload || typeof fileUpload === "string") {
       return json<ActionData>(
         { success: false, error: "ファイルが選択されていません" },
         { status: 400 }
       );
     }
-    
+
     const fileId = uuid();
     const fileName = fileUpload.name;
     const fileKey = `${fileId}-${fileName}`;
-    
+
     // ファイルをストレージに保存
     await fileStorage.set(fileKey, fileUpload);
-    
+
     // ファイル情報をデータベースに保存
     await db.insert(files).values({
       id: fileId,
@@ -39,15 +39,18 @@ export const action: ActionFunction = async ({ request }) => {
       mimeType: fileUpload.type,
       size: fileUpload.size,
     });
-    
-    return json<ActionData>({ 
+
+    return json<ActionData>({
       success: true,
-      fileId
+      fileId,
     });
   } catch (error) {
     console.error("ファイルアップロードエラー:", error);
     return json<ActionData>(
-      { success: false, error: "ファイルのアップロード中にエラーが発生しました" },
+      {
+        success: false,
+        error: "ファイルのアップロード中にエラーが発生しました",
+      },
       { status: 500 }
     );
   }
@@ -55,66 +58,51 @@ export const action: ActionFunction = async ({ request }) => {
 
 export default function Upload() {
   const actionData = useActionData<ActionData>();
-  
+
   return (
-    <div>
-      <h1>ファイルアップロード</h1>
-      <Form method="post" encType="multipart/form-data">
-        <div style={{ marginBottom: "1rem" }}>
-          <label style={{ display: "block", marginBottom: "0.5rem" }}>
+    <div className="space-y-6">
+      <h1 className="text-2xl font-bold mb-4">ファイルアップロード</h1>
+      <Form method="post" encType="multipart/form-data" className="space-y-4">
+        <div className="mb-4">
+          <label className="block mb-2">
             ファイルを選択:
-            <input 
-              type="file" 
-              name="file" 
-              style={{ 
-                display: "block", 
-                marginTop: "0.5rem" 
-              }} 
+            <input
+              type="file"
+              name="file"
+              className="block w-full mt-2 text-sm text-gray-500
+                file:mr-4 file:py-2 file:px-4
+                file:rounded-md file:border-0
+                file:text-sm file:font-semibold
+                file:bg-blue-50 file:text-blue-700
+                hover:file:bg-blue-100"
             />
           </label>
         </div>
-        
-        <button 
+
+        <button
           type="submit"
-          style={{
-            backgroundColor: "#0066cc",
-            color: "white",
-            padding: "0.5rem 1rem",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer"
-          }}
+          className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md"
         >
           アップロード
         </button>
       </Form>
-      
+
       {actionData?.success && (
-        <div style={{ 
-          color: "green", 
-          marginTop: "1rem",
-          padding: "1rem",
-          backgroundColor: "#f0fff0",
-          borderRadius: "4px"
-        }}>
+        <div className="mt-4 p-4 bg-green-50 text-green-700 rounded-md">
           ファイルが正常にアップロードされました！ (ID: {actionData.fileId})
         </div>
       )}
-      
+
       {actionData?.error && (
-        <div style={{ 
-          color: "red", 
-          marginTop: "1rem",
-          padding: "1rem",
-          backgroundColor: "#fff0f0",
-          borderRadius: "4px"
-        }}>
+        <div className="mt-4 p-4 bg-red-50 text-red-700 rounded-md">
           エラー: {actionData.error}
         </div>
       )}
-      
-      <div style={{ marginTop: "2rem" }}>
-        <a href="/">ホームに戻る</a>
+
+      <div className="mt-8">
+        <a href="/" className="text-blue-600 hover:text-blue-800">
+          ホームに戻る
+        </a>
       </div>
     </div>
   );
